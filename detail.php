@@ -48,7 +48,7 @@ if (isset($_GET['id'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <style>
-    .card-text-custom {
+    /* .card-text-custom {
         display: -webkit-box;
         display: box;
         -webkit-line-clamp: 3;
@@ -57,13 +57,67 @@ if (isset($_GET['id'])) {
         box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
+    } */
+
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .footer {
+        margin-top: auto;
+    }
+
+    .container {
+        flex-grow: 1;
+    }
+
+
+
+    .custom-container {
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0 160px;
+    }
+
+    .card-text-custom {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .featured-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+    }
+
+    .featured-card img {
+        filter: brightness(70%);
+        width: 100%;
+        height: auto;
+    }
+
+    .featured-card .card-img-overlay {
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
     }
     </style>
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-md navbar-light bg-light shadow-sm">
+    <nav class="navbar navbar-expand-md navbar-light bg-light shadow-sm sticky-top">
         <div class="container custom-container">
             <a class="navbar-brand fw-bold text-danger" href="index.php" style="font-size: 36px;">PoliNews</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
@@ -78,7 +132,7 @@ if (isset($_GET['id'])) {
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="index.php?category=politik">Politik</a>
                             <a class="dropdown-item" href="index.php?category=bencana">Bencana</a>
-                            <a class="dropdown-item" href="index.php?category=lalu+lintas">Lalu Lintas</a>
+                            <a class="dropdown-item" href="index.php?category=lalu-lintas">Lalu Lintas</a>
                             <a class="dropdown-item" href="index.php?category=pendidikan">Pendidikan</a>
                         </div>
                     </li>
@@ -95,7 +149,7 @@ if (isset($_GET['id'])) {
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container custom-container mt-4">
         <?php if ($news): ?>
         <!-- Halaman Detail Berita -->
         <div class="row">
@@ -113,7 +167,8 @@ if (isset($_GET['id'])) {
                 <span class="badge bg-danger"><?= htmlspecialchars($news['category']) ?></span>
             </div>
             <div class="text-justify" style="font-size: 18px;">
-                <p class="text-justify"><?= nl2br(htmlspecialchars($news['content'])) ?></p>
+                <p class="text-justify" style="text-align: justify;"><?= nl2br(htmlspecialchars($news['content'])) ?>
+                </p>
             </div>
             <a href="index.php" class="btn btn-secondary mt-3 mb-5">Kembali ke Berita</a>
             <hr>
@@ -149,8 +204,8 @@ if (isset($_GET['id'])) {
                         class="card-img-top" alt="News Image">
                     class="card-img-top" alt="<?= htmlspecialchars($news['title']) ?>">
                     <div class="card-body">
-                        <h5 class="card-title"><?= htmlspecialchars($news['title']) ?></h5>
-                        <p class="card-text card-text-custom"><?= htmlspecialchars($news['summary']) ?></p>
+                        <h5 class="card-title card-text-custom fw-semibold"><?= $news['title'] ?></h5>
+                        <p class="card-text card-text-custom"><?= $news['summary'] ?></p>
                         <a href="index.php?id=<?= $news['_id'] ?>" class="btn btn-danger">Selengkapnya</a>
                     </div>
                 </div>
@@ -158,6 +213,18 @@ if (isset($_GET['id'])) {
             <?php endforeach; ?>
         </div>
         <?php endif; ?>
+    </div>
+
+    <div class="footer fixed-bottom">
+        <footer class="bg-light text-center text-lg-start mt-auto">
+            <!-- Section: Contact -->
+            <div class="text-center p-3">
+                © 2024 <span class="text-danger fw-bold">PoliNews</span>. All rights reserved.
+            </div>
+
+            <!-- Footer Bottom -->
+
+        </footer>
     </div>
 
     <!-- Bootstrap JS -->

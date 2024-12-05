@@ -1,7 +1,7 @@
 <?php
 require 'config/db.php';
 
-$searchQuery = isset($_GET['search']) ? $_GET['search'] : "";
+$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : "";
 $categoryFilter = isset($_GET['category']) ? $_GET['category'] : "";
 $collection = $db->news;
 
@@ -29,6 +29,7 @@ if ($categoryFilter) {
 }
 
 $newsList = iterator_to_array($cursor);
+
 ?>
 
 
@@ -42,10 +43,32 @@ $newsList = iterator_to_array($cursor);
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .footer {
+        margin-top: auto;
+    }
+
+    .container {
+        flex-grow: 1;
+    }
+
+
     .custom-container {
         max-width: 100%;
         margin: 0 auto;
-        padding: 0 120px;
+        padding: 0 160px;
     }
 
     .card-text-custom {
@@ -76,7 +99,7 @@ $newsList = iterator_to_array($cursor);
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-md navbar-light bg-light shadow-sm">
+    <nav class="navbar navbar-expand-md navbar-light bg-light shadow-sm sticky-top">
         <div class="container custom-container">
             <a class="navbar-brand fw-bold text-danger" href="index.php" style="font-size: 36px;">PoliNews</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
@@ -91,7 +114,7 @@ $newsList = iterator_to_array($cursor);
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="index.php?category=politik">Politik</a>
                             <a class="dropdown-item" href="index.php?category=bencana">Bencana</a>
-                            <a class="dropdown-item" href="index.php?category=lalu+lintas">Lalu Lintas</a>
+                            <a class="dropdown-item" href="index.php?category=lalu-lintas">Lalu Lintas</a>
                             <a class="dropdown-item" href="index.php?category=pendidikan">Pendidikan</a>
                         </div>
                     </li>
@@ -119,6 +142,7 @@ $newsList = iterator_to_array($cursor);
         </div>
 
         <div class="row mt-4">
+
             <?php if (count($newsList) > 0): ?>
             <!-- Kiri: Berita Utama -->
             <div class="col-md-6">
@@ -134,7 +158,7 @@ $newsList = iterator_to_array($cursor);
                 <span><?= $newsList[0]['author'] ?? '' ?></span>
                 <span class="mx-3">·</span>
                 <span class="mx-1"><?= $newsList[0]['created_at']->toDateTime()->format('Y-m-d H:i:s') ?></span>
-                <h2 class="card-title fw-bold my-3">I<?= $newsList[0]['title'] ?? '' ?> </h2>
+                <h2 class="card-title fw-bold my-3"><?= $newsList[0]['title'] ?? '' ?> </h2>
                 <p class="card-text">
                     <?= $newsList[0]['summary'] ?? '' ?>
                 </p>
@@ -144,44 +168,71 @@ $newsList = iterator_to_array($cursor);
 
 
             <div class=" mt-4">
-                <div class="">
-                    <?php if ($searchQuery): ?>
-                    <h5>Hasil pencarian untuk: <strong><?= htmlspecialchars($searchQuery) ?></strong></h5>
-                    <?php endif; ?>
-
-                    <?php if (count($newsList) > 0): ?>
-
-
-                </div>
-
-
+                <?php if ($searchQuery): ?>
+                <h5>Hasil pencarian untuk: <strong><?= htmlspecialchars($searchQuery) ?></strong></h5>
+                <?php if (empty($newsList)): ?>
+                <p class="text-muted">Tidak ada hasil yang ditemukan untuk pencarian Anda.</p>
                 <?php else: ?>
-                <p class="text-muted">Tidak ada berita yang ditemukan.</p>
+                <div class="row mt-4">
+                    <?php foreach ($newsList as $news): ?>
+                    <div class="col-md-3 mb-4">
+                        <div class="card">
+                            <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/300x200' ?>"
+                                class="card-img-top" alt="News Image">
+                            <div class="card-body">
+                                <h5 class="card-title card-text-custom fw-semibold"><?= $news['title'] ?></h5>
+                                <p class="card-text card-text-custom"><?= $news['summary'] ?></p>
+                                <a href="detail.php?id=<?= $news['_id'] ?>" class="btn btn-danger">Selengkapnya</a>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
                 <?php endif; ?>
+
             </div>
+
+            <?php endif; ?>
+
 
         </div>
 
 
         <div class="row">
-            <h5 class="fw-bold mb-4 mt-4">Top Stories</h5>
+            <?php if (!$searchQuery): ?>
+            <!-- Cek apakah tidak ada query pencarian -->
+            <h5>Berita Lainnya</h5>
             <?php foreach (array_slice($newsList, 1) as $news): ?>
             <div class="col-md-3 mb-4">
-
                 <div class="card">
                     <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/300x200' ?>"
                         class="card-img-top" alt="News Image">
                     <div class="card-body">
-                        <h5 class="card-title"><?= $news['title'] ?></h5>
+                        <h5 class="card-title card-text-custom fw-semibold"><?= $news['title'] ?></h5>
                         <p class="card-text card-text-custom"><?= $news['summary'] ?></p>
                         <a href="detail.php?id=<?= $news['_id'] ?>" class="btn btn-danger">Selengkapnya</a>
                     </div>
                 </div>
             </div>
             <?php endforeach; ?>
+            <?php endif; ?>
         </div>
+
+    </div>
     </div>
 
+
+    <footer class="bg-light text-center text-lg-start mt-4">
+        <!-- Section: Contact -->
+        <div class="text-center p-3">
+            © 2024 <span class="text-danger fw-bold">PoliNews</span>. All rights reserved.
+        </div>
+        </div>
+        </div>
+
+        <!-- Footer Bottom -->
+
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
