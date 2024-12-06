@@ -33,8 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $uploadOk = 0;
     }
 
-    // Cek ukuran file
-    if ($_FILES["image"]["size"] > 500000) {
+    // Cek ukuran file, max 500kb
+    if ($_FILES["image"]["size"] > 500_000) {
         $message = "Sorry, your file is too large.";
         $uploadOk = 0;
     }
@@ -47,9 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Jika tidak ada error, proses upload
-    if ($uploadOk == 0) {
-        $message = "Sorry, your file was not uploaded.";
-    } else {
+    if ($uploadOk != 0) {
         if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
             $result = $collection->insertOne([
                 'title' => $_POST['title'],
