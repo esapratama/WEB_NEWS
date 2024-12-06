@@ -2,12 +2,6 @@
 session_start();
 require '../config/db.php';
 
-// Periksa apakah admin sudah login
-if (!isset($_SESSION['username'])) {
-    header('Location: login.php');
-    exit;
-}
-
 $errorMessage = "";
 
 // Proses login
