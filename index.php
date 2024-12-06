@@ -153,18 +153,22 @@ $newsList = iterator_to_array($cursor);
             </div>
 
             <!-- Kanan: Daftar Berita Lainnya -->
-            <div class="col-md-6 pt-2">
-                <img src="https://placehold.co/40x40" alt="Author's profile picture" class="rounded-circle me-2">
-                <span><?= $newsList[0]['author'] ?? '' ?></span>
-                <span class="mx-3">·</span>
-                <span class="mx-1"><?= $newsList[0]['created_at']->toDateTime()->format('Y-m-d H:i:s') ?></span>
+            <div class="col-md-6 pt-2 d-flex flex-column align-items-start text-center">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="fas fa-user-circle me-2 fs-2" style="font-size: 40px; color: #6c757d;"></i>
+                    <span class="fw-bold"><?= $newsList[0]['author'] ?? 'Unknown Author' ?></span>
+                    <span class="mx-3">·</span>
+                    <span><?= $newsList[0]['created_at']->toDateTime()->format('Y-m-d H:i:s') ?></span>
+                </div>
                 <h2 class="card-title fw-bold my-3"><?= $newsList[0]['title'] ?? '' ?> </h2>
                 <p class="card-text">
                     <?= $newsList[0]['summary'] ?? '' ?>
                 </p>
-                <a href="detail.php?id=<?= $newsList[0]['_id'] ?>" class="btn btn-danger">Selengkapnya</a>
+                <a href="detail.php?id=<?= $newsList[0]['_id'] ?>" class="btn btn-danger mt-3">Selengkapnya</a>
                 <?php endif; ?>
             </div>
+
+
 
 
             <div class=" mt-4">

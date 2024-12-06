@@ -161,7 +161,7 @@ if (isset($_GET['id'])) {
             </div>
             <h2 class="mt-4 fw-bold"><?= htmlspecialchars($news['title']) ?></h2>
             <div class="d-flex align-items-center mt-2 mb-4">
-                <img src="https://placehold.co/40x40" alt="Author's profile picture" class="rounded-circle me-2">
+                <i class="fas fa-user-circle me-2 fs-2" style="font-size: 40px; color: #6c757d;"></i>
                 <span class="fw-semibold fs-5"><?= htmlspecialchars($news['author']) ?></span>
                 <span class="mx-3"><?= $news['created_at']->toDateTime()->format('Y-m-d H:i:s') ?></span>
                 <span class="badge bg-danger"><?= htmlspecialchars($news['category']) ?></span>
