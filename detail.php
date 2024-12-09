@@ -1,7 +1,7 @@
 <?php
 require 'config/db.php';
 
-use MongoDB;
+// use MongoDB;
 
 // Ambil query pencarian dari input pengguna
 $searchQuery = isset($_GET['search']) ? htmlspecialchars(trim($_GET['search'])) : "";

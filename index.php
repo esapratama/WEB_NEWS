@@ -143,7 +143,7 @@ $newsList = iterator_to_array($cursor);
 
         <div class="row mt-4">
 
-            <?php if (count($newsList) > 0): ?>
+            <?php if (count($newsList) > 0 && !$searchQuery && !$categoryFilter): ?>
             <!-- Kiri: Berita Utama -->
             <div class="col-md-6">
                 <div class=" text-white">
@@ -153,7 +153,7 @@ $newsList = iterator_to_array($cursor);
             </div>
 
             <!-- Kanan: Daftar Berita Lainnya -->
-            <div class="col-md-6 pt-2 d-flex flex-column align-items-start text-center">
+            <div class="col-md-6 pt-2 d-flex flex-column align-items-start">
                 <div class="d-flex align-items-center mb-3">
                     <i class="fas fa-user-circle me-2 fs-2" style="font-size: 40px; color: #6c757d;"></i>
                     <span class="fw-bold"><?= $newsList[0]['author'] ?? 'Unknown Author' ?></span>
@@ -161,7 +161,7 @@ $newsList = iterator_to_array($cursor);
                     <span><?= $newsList[0]['created_at']->toDateTime()->format('Y-m-d H:i:s') ?></span>
                 </div>
                 <h2 class="card-title fw-bold my-3"><?= $newsList[0]['title'] ?? '' ?> </h2>
-                <p class="card-text">
+                <p class="card-text" style="text-align: justify;">
                     <?= $newsList[0]['summary'] ?? '' ?>
                 </p>
                 <a href="detail.php?id=<?= $newsList[0]['_id'] ?>" class="btn btn-danger mt-3">Selengkapnya</a>
@@ -172,7 +172,7 @@ $newsList = iterator_to_array($cursor);
 
 
             <div class=" mt-4">
-                <?php if ($searchQuery): ?>
+                <?php if ($searchQuery || $categoryFilter): ?>
                 <h5>Hasil pencarian untuk: <strong><?= htmlspecialchars($searchQuery) ?></strong></h5>
                 <?php if (empty($newsList)): ?>
                 <p class="text-muted">Tidak ada hasil yang ditemukan untuk pencarian Anda.</p>
@@ -203,7 +203,7 @@ $newsList = iterator_to_array($cursor);
 
 
         <div class="row">
-            <?php if (!$searchQuery): ?>
+            <?php if (!$searchQuery && !$categoryFilter): ?>
             <!-- Cek apakah tidak ada query pencarian -->
             <h5>Berita Lainnya</h5>
             <?php foreach (array_slice($newsList, 1) as $news): ?>
