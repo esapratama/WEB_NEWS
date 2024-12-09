@@ -90,6 +90,7 @@ if (isset($_GET['id'])) {
         padding: 0 160px;
     }
 
+
     .card-text-custom {
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -181,9 +182,10 @@ if (isset($_GET['id'])) {
                 <div class="col-md-3 mb-4">
                     <div class="card">
                         <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/300x200' ?>"
-                            class="card-img-top" alt="News Image">
+                            class="card-img-top" height="240rem" style="object-fit: cover;" alt="News Image">
                         <div class="card-body">
-                            <h5 class="card-title"><?= htmlspecialchars($news['title']) ?></h5>
+                            <h5 class="card-title card-text-custom fw-semibold"><?= htmlspecialchars($news['title']) ?>
+                            </h5>
                             <p class="card-text card-text-custom"><?= htmlspecialchars($news['summary']) ?></p>
                             <a href="index.php?id=<?= $news['_id'] ?>" class="btn btn-danger">Selengkapnya</a>
                         </div>
@@ -203,7 +205,7 @@ if (isset($_GET['id'])) {
             <div class="col-md-3 mb-4">
                 <div class="card">
                     <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/300x200' ?>"
-                        class="card-img-top" alt="News Image">
+                        class="card-img-top" height="240rem" style="object-fit: cover;" alt="News Image">
                     class="card-img-top" alt="<?= htmlspecialchars($news['title']) ?>">
                     <div class="card-body">
                         <h5 class="card-title card-text-custom fw-semibold"><?= $news['title'] ?></h5>
@@ -217,17 +219,17 @@ if (isset($_GET['id'])) {
         <?php endif; ?>
     </div>
 
-    <div class="footer fixed-bottom">
-        <footer class="bg-light text-center text-lg-start mt-auto">
-            <!-- Section: Contact -->
-            <div class="text-center p-3">
-                © 2024 <span class="text-danger fw-bold">PoliNews</span>. All rights reserved.
-            </div>
+    <!-- <div class="footer fixed-bottom"> -->
+    <footer class="bg-light text-center text-lg-start mt-auto">
+        <!-- Section: Contact -->
+        <div class="text-center p-3">
+            © 2024 <span class="text-danger fw-bold">PoliNews</span>. All rights reserved.
+        </div>
 
-            <!-- Footer Bottom -->
+        <!-- Footer Bottom -->
 
-        </footer>
-    </div>
+    </footer>
+    <!-- </div> -->
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

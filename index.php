@@ -182,7 +182,7 @@ $newsList = iterator_to_array($cursor);
                     <div class="col-md-3 mb-4">
                         <div class="card">
                             <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/300x200' ?>"
-                                class="card-img-top" alt="News Image">
+                                class="card-img-top" height="240rem" style="object-fit: cover;" alt="News Image">
                             <div class="card-body">
                                 <h5 class="card-title card-text-custom fw-semibold"><?= $news['title'] ?></h5>
                                 <p class="card-text card-text-custom"><?= $news['summary'] ?></p>
@@ -210,7 +210,7 @@ $newsList = iterator_to_array($cursor);
             <div class="col-md-3 mb-4">
                 <div class="card">
                     <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/300x200' ?>"
-                        class="card-img-top" alt="News Image">
+                        class="card-img-top" height="240rem" style="object-fit: cover;" alt=" News Image">
                     <div class="card-body">
                         <h5 class="card-title card-text-custom fw-semibold"><?= $news['title'] ?></h5>
                         <p class="card-text card-text-custom"><?= $news['summary'] ?></p>
