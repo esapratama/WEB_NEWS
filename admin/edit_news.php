@@ -105,19 +105,17 @@
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-    <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
-    />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
 
     <script>
-        function showMessage(message) {
-            if (message) {
-                alert(message);
-            }
+    function showMessage(message) {
+        if (message) {
+            alert(message);
         }
+    }
     </script>
 </head>
 
@@ -148,11 +146,13 @@
         <form method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="title" class="form-label">Judul</label>
-                <input type="text" class="form-control" id="title" name="title" value="<?= htmlspecialchars($news['title'] ?? '') ?>" required>
+                <input type="text" class="form-control" id="title" name="title"
+                    value="<?= htmlspecialchars($news['title'] ?? '') ?>" required>
             </div>
             <div class="mb-3">
                 <label for="content" class="form-label">Konten</label>
-                <div id="toolbar-container" style="border-top-left-radius: var(--bs-border-radius); border-top-right-radius: var(--bs-border-radius); border: 1px solid #dee2e6;">
+                <div id="toolbar-container"
+                    style="border-top-left-radius: var(--bs-border-radius); border-top-right-radius: var(--bs-border-radius); border: 1px solid #dee2e6;">
                     <span class="ql-formats">
                         <select class="ql-size"></select>
                     </span>
@@ -196,18 +196,22 @@
                         <button class="ql-clean"></button>
                     </span>
                 </div>
-                <div id="editor" style="border-bottom-left-radius: var(--bs-border-radius); border-bottom-right-radius: var(--bs-border-radius); border: 1px solid #dee2e6; border-top: 0px solid; min-height: 10rem"></div>
+                <div id="editor"
+                    style="border-bottom-left-radius: var(--bs-border-radius); border-bottom-right-radius: var(--bs-border-radius); border: 1px solid #dee2e6; border-top: 0px solid; min-height: 10rem">
+                </div>
 
                 <input type="hidden" id="quill-content" name="content" value="<?= $news['content'] ?? ''?>">
                 <!-- <textarea class="form-control" id="content" name="content" rows="5" required></textarea> -->
             </div>
             <div class="mb-3">
                 <label for="summary" class="form-label">Ringkasan</label>
-                <textarea class="form-control" id="summary" name="summary" rows="3" required><?= htmlspecialchars($news['summary'] ?? '') ?></textarea>
+                <textarea class="form-control" id="summary" name="summary" rows="3"
+                    required><?= htmlspecialchars($news['summary'] ?? '') ?></textarea>
             </div>
             <div class="mb-3">
                 <label for="author" class="form-label">Penulis</label>
-                <input type="text" class="form-control" id="author" name="author" value="<?= htmlspecialchars($news['author'] ?? '') ?>" required>
+                <input type="text" class="form-control" id="author" name="author"
+                    value="<?= htmlspecialchars($news['author'] ?? '') ?>" required>
             </div>
             <div class="mb-3">
                 <label for="category" class="form-label">Kategori</label>
@@ -215,14 +219,17 @@
                     <option value="">Pilih Kategori</option>
                     <option value="politik" <?= $news['category'] === 'politik' ? 'selected' : '' ?>>Politik</option>
                     <option value="bencana" <?= $news['category'] === 'bencana' ? 'selected' : '' ?>>Bencana</option>
-                    <option value="lalu-lintas" <?= $news['category'] === 'lalu-lintas' ? 'selected' : '' ?>>Lalu Lintas</option>
-                    <option value="pendidikan" <?= $news['category'] === 'pendidikan' ? 'selected' : '' ?>>Pendidikan</option>
+                    <option value="lalu-lintas" <?= $news['category'] === 'lalu-lintas' ? 'selected' : '' ?>>Lalu Lintas
+                    </option>
+                    <option value="pendidikan" <?= $news['category'] === 'pendidikan' ? 'selected' : '' ?>>Pendidikan
+                    </option>
                 </select>
             </div>
             <div class="mb-3">
                 <label for="image" class="form-label">Gambar</label>
                 <input type="file" class="form-control" id="image" name="image" accept=".jpg, .jpeg, .png, .gif">
             </div>
+            <button type="button" class="btn btn-secondary me-2" onclick="window.history.back();">Batal</button>
             <button type="submit" class="btn btn-primary">Simpan</button>
         </form>
     </div>
@@ -232,20 +239,20 @@
 
     <!-- Initialize Quill editor -->
     <script>
-        const quill = new Quill('#editor', {
-            modules: {
-                syntax: true,
-                toolbar: '#toolbar-container',
-            },
-            placeholder: 'Add your content here...',
-            theme: 'snow',
-        });
+    const quill = new Quill('#editor', {
+        modules: {
+            syntax: true,
+            toolbar: '#toolbar-container',
+        },
+        placeholder: 'Add your content here...',
+        theme: 'snow',
+    });
 
-        quill.root.innerHTML = document.getElementById('quill-content').value;
+    quill.root.innerHTML = document.getElementById('quill-content').value;
 
-        quill.on('text-change', (delta, oldDelta, source) => {
-            document.getElementById('quill-content').value = quill.root.innerHTML;
-        });
+    quill.on('text-change', (delta, oldDelta, source) => {
+        document.getElementById('quill-content').value = quill.root.innerHTML;
+    });
     </script>
 </body>
 
