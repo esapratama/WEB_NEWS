@@ -204,7 +204,7 @@ $newsList = iterator_to_array($cursor);
 
 
         <div class="row">
-            <?php if (!$searchQuery && !$categoryFilter): ?>
+            <?php if (count($newsList) > 0 && !$searchQuery && !$categoryFilter): ?>
             <!-- Cek apakah tidak ada query pencarian -->
             <div class="row mb-3 justify-content-between">
                 <div class="col-6">
@@ -234,10 +234,9 @@ $newsList = iterator_to_array($cursor);
                 </div>
             </div>
             <?php endforeach; ?>
-            <?php endif; ?>
         </div>
 
-        <?php if (count($newsList) > 0 && !$searchQuery && !$categoryFilter): ?>
+
         <div class="container  my-4">
             <div class="row mb-3">
                 <div class="col-6">
