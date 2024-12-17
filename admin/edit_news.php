@@ -196,9 +196,11 @@
                         <button class="ql-clean"></button>
                     </span>
                 </div>
-                <div id="editor" style="border-bottom-left-radius: var(--bs-border-radius); border-bottom-right-radius: var(--bs-border-radius); border: 1px solid #dee2e6; border-top: 0px solid; min-height: 10rem"></div>
+                <div id="editor" style="border-bottom-left-radius: var(--bs-border-radius); border-bottom-right-radius: var(--bs-border-radius); border: 1px solid #dee2e6; border-top: 0px solid; min-height: 10rem">
+                    <?= $news['content'] ?? ''?>
+                </div>
 
-                <input type="hidden" id="quill-content" name="content" value="<?= $news['content'] ?? ''?>">
+                <input type="hidden" id="quill-content" name="content">
                 <!-- <textarea class="form-control" id="content" name="content" rows="5" required></textarea> -->
             </div>
             <div class="mb-3">
@@ -241,7 +243,7 @@
             theme: 'snow',
         });
 
-        quill.root.innerHTML = document.getElementById('quill-content').value;
+        document.getElementById('quill-content').value = quill.root.innerHTML;
 
         quill.on('text-change', (delta, oldDelta, source) => {
             document.getElementById('quill-content').value = quill.root.innerHTML;
