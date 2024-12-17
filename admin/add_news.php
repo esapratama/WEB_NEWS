@@ -208,9 +208,10 @@
                 <input type="file" class="form-control" id="image" name="image" accept=".jpg, .jpeg, .png, .gif">
             </div>
             <br>
-            <button type="button" class="btn btn-secondary me-2" onclick="window.history.back();">Batal</button>
-
-            <button type="submit" class="btn btn-primary mb-3">Simpan</button>
+            <div class="mb-3">
+                <button type="button" class="btn btn-secondary me-2" onclick="window.history.back();">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
         </form>
     </div>
 
