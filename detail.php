@@ -1,4 +1,9 @@
-    <?php
+<?php
+    if (!isset($_GET['id'])) {
+        header('Location: index.php');
+        exit;
+    }
+
     require 'config/db.php';
 
     // use MongoDB;
@@ -24,18 +29,22 @@
 
     // Halaman detail berita jika ada
     $news = null;
-    if (isset($_GET['id'])) {
-        try {
-            $id = new MongoDB\BSON\ObjectId($_GET['id']);
-            $news = $collection->findOne(['_id' => $id]);
-            if (!$news) {
-                echo "<p>Berita tidak ditemukan.</p>";
-                exit;
-            }
-        } catch (Exception $e) {
-            echo "<p>ID tidak valid.</p>";
+    try {
+        $id = new MongoDB\BSON\ObjectId($_GET['id']);
+
+        $updateResult = $collection->updateOne(
+            ['_id' => $id],
+            ['$inc' => ['views' => 1]]
+        );
+
+        $news = $collection->findOne(['_id' => $id]);
+        if (!$news) {
+            echo "<p>Berita tidak ditemukan.</p>";
             exit;
         }
+    } catch (Exception $e) {
+        echo "<p>ID tidak valid.</p>";
+        exit;
     }
     ?>
     <!DOCTYPE html>
