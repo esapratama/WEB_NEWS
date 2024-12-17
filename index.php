@@ -29,6 +29,17 @@ if ($categoryFilter) {
 }
 
 $newsList = iterator_to_array($cursor);
+$articleId = $_GET['id']; 
+$updateResult = $collection->updateOne(
+    ['_id' => new MongoDB\BSON\ObjectId($articleId)],
+    ['$inc' => ['views' => 1]]
+);
+
+if ($updateResult->getModifiedCount() > 0) {
+    echo "Views berhasil diupdate!";
+} else {
+    echo "Terjadi kesalahan saat memperbarui views.";
+}
 
 ?>
 
