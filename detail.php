@@ -192,7 +192,7 @@
 
             <div class="text-justify" style="font-size: 18px;">
                 <p class="text-justify" style="text-align: justify;">
-                    <?= nl2br(htmlspecialchars($news['content'])) ?>
+                    <?= $news['content'] ?>
                 </p>
             </div>
             <a href="index.php" class="btn btn-secondary mt-3 mb-5">Kembali ke Berita</a>
