@@ -11,8 +11,8 @@
     $id = new MongoDB\BSON\ObjectId($_GET['id']);
     $news = $collection->findOne(['_id' => $id]);
 
-    if (!empty($news['image'])) {
-        unlink('../' . $news['image']);
+    if (!empty($news['media'])) {
+        unlink('../' . $news['media']);
     }
 
     $collection->deleteOne(['_id' => $id]);
