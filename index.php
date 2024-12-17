@@ -344,7 +344,7 @@
                                     <!-- Tanggal di kiri -->
                                     <p class="mb-0"><?= $news['created_at']->toDateTime()->format('l, d M Y') ?><i
                                             class="bi bi-dot"></i>
-                                        <i class="bi bi-eye me-2"> 23 Views</i>
+                                        <i class="bi bi-eye me-2"> <?= $news["views"] ?? 0 ?> Views</i>
                                     </p>
 
 
@@ -438,10 +438,11 @@
                                 <h4 class="p-2">Top Posts</h4>
                                 <ul class="list-group list-group-flush">
                                     <?php 
-            // Contoh array untuk berita top
-            $topPosts = array_slice($newsList, 0, 5); // Mengambil 4 berita teratas
-            $counter = 1; // Inisialisasi angka
-            foreach ($topPosts as $post): ?>
+                                        // Contoh array untuk berita top
+                                        $topPosts = array_slice($newsList, 0, 5); // Mengambil 4 berita teratas
+                                        $counter = 1; // Inisialisasi angka
+                                        foreach ($topPosts as $post): 
+                                    ?>
                                     <li class=" list-group-item d-flex align-items-start">
                                         <span class="me-3 fw-bold"><?= $counter++; ?>.</span> <!-- Angka -->
                                         <div>
