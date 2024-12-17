@@ -438,8 +438,10 @@
                                 <h4 class="p-2">Top Posts</h4>
                                 <ul class="list-group list-group-flush">
                                     <?php 
-                                        // Contoh array untuk berita top
-                                        $topPosts = array_slice($newsList, 0, 5); // Mengambil 4 berita teratas
+                                        $topPosts = $collection->find(
+                                            ['created_at' => ['$gte' => new MongoDB\BSON\UTCDateTime(strtotime('-30 days') * 1000)]],
+                                            ['sort' => ['views' => -1], 'limit' => 5]
+                                        );
                                         $counter = 1; // Inisialisasi angka
                                         foreach ($topPosts as $post): 
                                     ?>
