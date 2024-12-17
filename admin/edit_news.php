@@ -229,8 +229,10 @@
                 <label for="image" class="form-label">Gambar</label>
                 <input type="file" class="form-control" id="image" name="image" accept=".jpg, .jpeg, .png, .gif">
             </div>
-            <button type="button" class="btn btn-secondary me-2" onclick="window.history.back();">Batal</button>
-            <button type="submit" class="btn btn-primary">Simpan</button>
+            <div class="mb-3">
+                <button type="button" class="btn btn-secondary me-2" onclick="window.history.back();">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
         </form>
     </div>
 
