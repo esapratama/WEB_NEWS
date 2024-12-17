@@ -85,10 +85,8 @@
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
-    <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
-    />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
 
@@ -134,7 +132,8 @@
             </div>
             <div class="mb-3">
                 <label for="content" class="form-label">Konten</label>
-                <div id="toolbar-container" style="border-top-left-radius: var(--bs-border-radius); border-top-right-radius: var(--bs-border-radius); border: 1px solid #dee2e6;">
+                <div id="toolbar-container"
+                    style="border-top-left-radius: var(--bs-border-radius); border-top-right-radius: var(--bs-border-radius); border: 1px solid #dee2e6;">
                     <span class="ql-formats">
                         <select class="ql-size"></select>
                     </span>
@@ -178,7 +177,9 @@
                         <button class="ql-clean"></button>
                     </span>
                 </div>
-                <div id="editor" style="border-bottom-left-radius: var(--bs-border-radius); border-bottom-right-radius: var(--bs-border-radius); border: 1px solid #dee2e6; border-top: 0px solid; min-height: 10rem"></div>
+                <div id="editor"
+                    style="border-bottom-left-radius: var(--bs-border-radius); border-bottom-right-radius: var(--bs-border-radius); border: 1px solid #dee2e6; border-top: 0px solid; min-height: 10rem">
+                </div>
 
                 <input type="hidden" id="quill-content" name="content">
                 <!-- <textarea class="form-control" id="content" name="content" rows="5" required></textarea> -->
@@ -207,7 +208,10 @@
                 <input type="file" class="form-control" id="image" name="image" accept=".jpg, .jpeg, .png, .gif">
             </div>
             <br>
-            <button type="submit" class="btn btn-primary mb-3">Simpan</button>
+            <div class="mb-3">
+                <button type="button" class="btn btn-secondary me-2" onclick="window.history.back();">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
         </form>
     </div>
 
@@ -216,18 +220,18 @@
 
     <!-- Initialize Quill editor -->
     <script>
-        const quill = new Quill('#editor', {
-            modules: {
-                syntax: true,
-                toolbar: '#toolbar-container',
-            },
-            placeholder: 'Add your content here...',
-            theme: 'snow',
-        });
+    const quill = new Quill('#editor', {
+        modules: {
+            syntax: true,
+            toolbar: '#toolbar-container',
+        },
+        placeholder: 'Add your content here...',
+        theme: 'snow',
+    });
 
-        quill.on('text-change', (delta, oldDelta, source) => {
-            document.getElementById('quill-content').value = quill.root.innerHTML;
-        });
+    quill.on('text-change', (delta, oldDelta, source) => {
+        document.getElementById('quill-content').value = quill.root.innerHTML;
+    });
     </script>
 </body>
 
