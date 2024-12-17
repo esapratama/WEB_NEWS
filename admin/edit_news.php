@@ -1,94 +1,94 @@
 <?php
-session_start();
-require '../config/db.php';
+    session_start();
+    require '../config/db.php';
 
-// Redirect jika user belum login
-if (!isset($_SESSION['username'])) {
-    header('Location: login.php');
-    exit;
-}
+    // Redirect jika user belum login
+    if (!isset($_SESSION['username'])) {
+        header('Location: login.php');
+        exit;
+    }
 
-// Variabel untuk pesan pemberitahuan
-$message = "";
+    // Variabel untuk pesan pemberitahuan
+    $message = "";
 
-// Validasi ID dari URL
-if (!isset($_GET['id']) || empty($_GET['id'])) {
-    die("ID berita tidak valid.");
-}
+    // Validasi ID dari URL
+    if (!isset($_GET['id']) || empty($_GET['id'])) {
+        die("ID berita tidak valid.");
+    }
 
-$id = new MongoDB\BSON\ObjectId($_GET['id']);
-$news = $db->news->findOne(['_id' => $id]);
+    $id = new MongoDB\BSON\ObjectId($_GET['id']);
+    $news = $db->news->findOne(['_id' => $id]);
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $collection = $db->news;
-    $target_dir = "../images/";
-    $image_path = $news['image'] ?? ''; // Default ke gambar lama jika tidak ada yang baru
-    $old_image_path = $image_path;
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $collection = $db->news;
+        $target_dir = "../images/";
+        $image_path = $news['image'] ?? ''; // Default ke gambar lama jika tidak ada yang baru
+        $old_image_path = $image_path;
 
-    // Cek apakah file baru diunggah
-    if (!empty($_FILES["image"]["name"])) {
-        $image_name = basename($_FILES["image"]["name"]);
-        $target_file = $target_dir . $image_name;
-        $uploadOk = 1;
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+        // Cek apakah file baru diunggah
+        if (!empty($_FILES["image"]["name"])) {
+            $image_name = basename($_FILES["image"]["name"]);
+            $target_file = $target_dir . $image_name;
+            $uploadOk = 1;
+            $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-        // Validasi tipe file
-        $check = getimagesize($_FILES["image"]["tmp_name"]);
-        if ($check === false) {
-            $message = "File bukan gambar.";
-            $uploadOk = 0;
-        }
+            // Validasi tipe file
+            $check = getimagesize($_FILES["image"]["tmp_name"]);
+            if ($check === false) {
+                $message = "File bukan gambar.";
+                $uploadOk = 0;
+            }
 
-        // Cek ukuran file (maksimal 2MB)
-        if ($_FILES["image"]["size"] > 2000000) {
-            $message = "Ukuran file terlalu besar (maksimal 2MB).";
-            $uploadOk = 0;
-        }
+            // Cek ukuran file (maksimal 2MB)
+            if ($_FILES["image"]["size"] > 2000000) {
+                $message = "Ukuran file terlalu besar (maksimal 2MB).";
+                $uploadOk = 0;
+            }
 
-        // Hanya izinkan format file tertentu
-        $allowed_types = ["jpg", "jpeg", "png", "gif"];
-        if (!in_array($imageFileType, $allowed_types)) {
-            $message = "Hanya format JPG, JPEG, PNG, dan GIF yang diizinkan.";
-            $uploadOk = 0;
-        }
+            // Hanya izinkan format file tertentu
+            $allowed_types = ["jpg", "jpeg", "png", "gif"];
+            if (!in_array($imageFileType, $allowed_types)) {
+                $message = "Hanya format JPG, JPEG, PNG, dan GIF yang diizinkan.";
+                $uploadOk = 0;
+            }
 
-        // Proses upload file baru
-        if ($uploadOk) {
-            if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-                $image_path = $image_name; // Simpan hanya nama file
-            } else {
-                $message = "Gagal mengunggah file.";
+            // Proses upload file baru
+            if ($uploadOk) {
+                if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+                    $image_path = $image_name; // Simpan hanya nama file
+                } else {
+                    $message = "Gagal mengunggah file.";
+                }
             }
         }
-    }
 
-    // Update data di database
-    $result = $collection->updateOne(
-        ['_id' => $id],
-        [
-            '$set' => [
-                'title' => $_POST['title'],
-                'content' => $_POST['content'],
-                'summary' => $_POST['summary'],
-                'author' => $_POST['author'],
-                'category' => $_POST['category'],
-                'updated_at' => new MongoDB\BSON\UTCDateTime(),
-                'image' => $image_path
+        // Update data di database
+        $result = $collection->updateOne(
+            ['_id' => $id],
+            [
+                '$set' => [
+                    'title' => $_POST['title'],
+                    'content' => $_POST['content'],
+                    'summary' => $_POST['summary'],
+                    'author' => $_POST['author'],
+                    'category' => $_POST['category'],
+                    'updated_at' => new MongoDB\BSON\UTCDateTime(),
+                    'image' => $image_path
+                ]
             ]
-        ]
-    );
+        );
 
-    if ($result->getModifiedCount() > 0) {
-        if ($image_path !== $old_image_path && file_exists($target_dir . $old_image_path)) {
-            unlink($target_dir . $old_image_path);
+        if ($result->getModifiedCount() > 0) {
+            if ($image_path !== $old_image_path && file_exists($target_dir . $old_image_path)) {
+                unlink($target_dir . $old_image_path);
+            }
+            $message = "Berita berhasil diupdate!";
+            header('Location: manage_news.php');
+            exit;
+        } else {
+            $message = "Tidak ada perubahan yang disimpan.";
         }
-        $message = "Berita berhasil diupdate!";
-        header('Location: manage_news.php');
-        exit;
-    } else {
-        $message = "Tidak ada perubahan yang disimpan.";
     }
-}
 ?>
 
 <!DOCTYPE html>

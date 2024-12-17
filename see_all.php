@@ -1,34 +1,34 @@
 <?php
-require 'config/db.php';
+    require 'config/db.php';
 
-$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : "";
-$categoryFilter = isset($_GET['category']) ? $_GET['category'] : "";
-$collection = $db->news;
+    $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : "";
+    $categoryFilter = isset($_GET['category']) ? $_GET['category'] : "";
+    $collection = $db->news;
 
-// Ambil kategori unik dari database
-$categories = $collection->distinct('category');
+    // Ambil kategori unik dari database
+    $categories = $collection->distinct('category');
 
-// Query berita
-if ($categoryFilter) {
-    $cursor = $collection->find(
-        ['category' => $categoryFilter],
-        ['sort' => ['created_at' => -1]]
-    );
-} elseif ($searchQuery) {
-    $cursor = $collection->find(
-        [
-            '$or' => [
-                ['title' => new MongoDB\BSON\Regex($searchQuery, 'i')],
-                ['content' => new MongoDB\BSON\Regex($searchQuery, 'i')]
-            ]
-        ],
-        ['sort' => ['created_at' => -1]]
-    );
-} else {
-    $cursor = $collection->find([], ['sort' => ['created_at' => -1]]);
-}
+    // Query berita
+    if ($categoryFilter) {
+        $cursor = $collection->find(
+            ['category' => $categoryFilter],
+            ['sort' => ['created_at' => -1]]
+        );
+    } elseif ($searchQuery) {
+        $cursor = $collection->find(
+            [
+                '$or' => [
+                    ['title' => new MongoDB\BSON\Regex($searchQuery, 'i')],
+                    ['content' => new MongoDB\BSON\Regex($searchQuery, 'i')]
+                ]
+            ],
+            ['sort' => ['created_at' => -1]]
+        );
+    } else {
+        $cursor = $collection->find([], ['sort' => ['created_at' => -1]]);
+    }
 
-$newsList = iterator_to_array($cursor);
+    $newsList = iterator_to_array($cursor);
 
 ?>
 
