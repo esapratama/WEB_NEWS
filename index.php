@@ -194,11 +194,8 @@ $newsList = iterator_to_array($cursor);
                     <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
-
             </div>
-
             <?php endif; ?>
-
 
         </div>
 
