@@ -27,7 +27,7 @@ if (isset($_GET['delete_id'])) {
     exit;
 }
 
-// Dapatkan Semua Kategori
+// menampilkan semua kategori
 $categoriesCursor = $collection->find([], ['sort' => ['name' => 1]]);
 $categories = iterator_to_array($categoriesCursor);
 ?>

@@ -9,7 +9,7 @@ if (!isset($_SESSION['username'])) {
 
 $collection = $db->categories;
 
-// Dapatkan Data Kategori
+// Data Kategori
 if (!isset($_GET['id'])) {
     header('Location: manage_categories.php');
     exit;
@@ -23,7 +23,7 @@ if (!$category) {
     exit;
 }
 
-// Proses Update Kategori
+// Update Kategori
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_category'])) {
     $name = trim($_POST['name']);
     if (!empty($name)) {
