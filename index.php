@@ -1,34 +1,34 @@
 <?php
-    require 'config/db.php';
+require 'config/db.php';
 
-    $searchQuery = isset($_GET['search']) ? trim($_GET['search']) : "";
-    $categoryFilter = isset($_GET['category']) ? $_GET['category'] : "";
-    $collection = $db->news;
+$searchQuery = isset($_GET['search']) ? trim($_GET['search']) : "";
+$categoryFilter = isset($_GET['category']) ? $_GET['category'] : "";
+$collection = $db->news;
 
-    // Ambil kategori unik dari database
-    $categories = $collection->distinct('category');
+// Ambil kategori unik dari database
+$categories = $collection->distinct('category');
 
-    // Query berita
-    if ($categoryFilter) {
-        $cursor = $collection->find(
-            ['category' => $categoryFilter],
-            ['sort' => ['created_at' => -1]]
-        );
-    } elseif ($searchQuery) {
-        $cursor = $collection->find(
-            [
-                '$or' => [
-                    ['title' => new MongoDB\BSON\Regex($searchQuery, 'i')],
-                    ['content' => new MongoDB\BSON\Regex($searchQuery, 'i')]
-                ]
-            ],
-            ['sort' => ['created_at' => -1]]
-        );
-    } else {
-        $cursor = $collection->find([], ['sort' => ['created_at' => -1]]);
-    }
+// Query berita
+if ($categoryFilter) {
+    $cursor = $collection->find(
+        ['category' => $categoryFilter],
+        ['sort' => ['created_at' => -1]]
+    );
+} elseif ($searchQuery) {
+    $cursor = $collection->find(
+        [
+            '$or' => [
+                ['title' => new MongoDB\BSON\Regex($searchQuery, 'i')],
+                ['content' => new MongoDB\BSON\Regex($searchQuery, 'i')]
+            ]
+        ],
+        ['sort' => ['created_at' => -1]]
+    );
+} else {
+    $cursor = $collection->find([], ['sort' => ['created_at' => -1]]);
+}
 
-    $newsList = iterator_to_array($cursor);
+$newsList = iterator_to_array($cursor);
 
 ?>
 
@@ -149,8 +149,22 @@
             <!-- Kiri: Berita Utama -->
             <div class="col-md-6">
                 <div class=" text-white">
-                    <img src="<?= isset($newsList[0]['image']) ? 'images/' . $newsList[0]['image'] : '' ?>"
-                        class="card-img" alt="Featured News Image" style="border-radius: 8px;">
+                    <?php
+                        $fileExtension = pathinfo($newsList[0]['media'], PATHINFO_EXTENSION);
+                        $imageUrl = isset($newsList[0]['media']) ? 'uploads/' . $newsList[0]['media'] : '';
+                        ?>
+
+                    <?php if ($imageUrl && in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
+                    <img src="<?= $imageUrl ?>" class="card-img" alt="Featured News Image" style="border-radius: 8px;">
+                    <?php elseif ($imageUrl && in_array(strtolower($fileExtension), ['mp4', 'webm', 'ogg'])): ?>
+                    <video class="card-img" style="border-radius: 8px;" controls muted>
+                        <source src="<?= $imageUrl ?>" type="video/<?= $fileExtension ?>">
+                        Your browser does not support the video tag.
+                    </video>
+                    <?php else: ?>
+                    <img src="https://placehold.co/300x200" class="card-img" alt="Placeholder Image"
+                        style="border-radius: 8px;">
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -192,8 +206,27 @@
                     <?php if (!$categoryFilter || $news['category'] === $categoryFilter): ?>
                     <div class="col-md-3 mb-4">
                         <div class="card">
-                            <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/300x200' ?>"
-                                class="card-img-top" height="240rem" style="object-fit: cover;" alt="News Image">
+                            <?php
+                                                $fileExtension = isset($news['image']) ? pathinfo($news['image'], PATHINFO_EXTENSION) : '';
+                                                $imageUrl = isset($news['image']) && !empty($news['image']) ? 'images/' . htmlspecialchars($news['image']) : '';
+                                                ?>
+
+                            <?php if ($imageUrl && in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
+                            <img src="<?= $imageUrl ?>" class="card-img-top"
+                                style="object-fit: cover; height: 240px; width: 100%; border-radius: 8px;"
+                                alt="News Image">
+                            <?php elseif ($imageUrl && in_array(strtolower($fileExtension), ['mp4', 'webm', 'ogg'])): ?>
+                            <video class="card-img-top"
+                                style="object-fit: cover; height: 240px; width: 100%; border-radius: 8px;" controls
+                                muted>
+                                <source src="<?= $imageUrl ?>" type="video/<?= $fileExtension ?>">
+                                Your browser does not support the video tag.
+                            </video>
+                            <?php else: ?>
+                            <img src="https://placehold.co/300x200" class="card-img-top"
+                                style="object-fit: cover; height: 240px; width: 100%; border-radius: 8px;"
+                                alt="Placeholder Image">
+                            <?php endif; ?>
                             <div class="card-body">
                                 <h5 class="card-title card-text-custom fw-semibold">
                                     <?= htmlspecialchars($news['title']) ?></h5>
@@ -230,8 +263,26 @@
                 <div class="col-md-3 mb-4">
                     <div class="card ">
                         <a href="detail.php?id=<?= $news['_id'] ?>" class="text-decoration-none text-black">
-                            <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/300x200' ?>"
-                                class="card-img-top" height="200rem" style="object-fit: cover;" alt=" News Image">
+                            <?php
+                                        $fileExtension = isset($news['media']) ? pathinfo($news['media'], PATHINFO_EXTENSION) : '';
+                                        $imageUrl = isset($news['media']) ? 'uploads/' . $news['media'] : 'https://placehold.co/300x200';
+                                        ?>
+
+                            <?php if (in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
+                            <img src="<?= $imageUrl ?>" class="card-img-top" height="200rem" width="100%"
+                                style="object-fit: cover;" alt="News Image">
+                            <?php elseif (in_array(strtolower($fileExtension), ['mp4', 'webm', 'ogg'])): ?>
+                            <video class="card-img-top" height="200rem" style="width: 100%; object-fit: contain;"
+                                controls muted>
+                                <source src="<?= $imageUrl ?>" type="video/<?= $fileExtension ?>">
+                                Your browser does not support the video tag.
+                            </video>
+
+                            <?php else: ?>
+                            <img src="<?= $imageUrl ?>" class="card-img-top" height="200rem" style="object-fit: cover;"
+                                alt="Placeholder Image">
+                            <?php endif; ?>
+
                             <div class="card-body">
                                 <span class="badge bg-danger mb-2"><?= htmlspecialchars($news['category']) ?></span>
                                 <h5 class="card-title card-text-custom fw-semibold"><?= $news['title'] ?></h5>
@@ -273,9 +324,25 @@
                     <h4 class="mt-3 mb-3 fw-semibold">News Terbaru</h4>
                     <div class="card position-relative" style="height: 30rem;">
                         <!-- Gambar -->
-                        <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/600x400' ?>"
-                            class="card-img-top img-fluid" style="object-fit: cover; height: 100%; border-radius: 4px;"
-                            alt="News Image">
+                        <?php
+                            $fileExtension = pathinfo($news['media'], PATHINFO_EXTENSION);
+                            $imageUrl = isset($news['media']) ? 'uploads/' . $news['media'] : 'https://placehold.co/600x400';
+                            ?>
+
+                        <?php if (in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
+                        <img src="<?= $imageUrl ?>" class="card-img-top img-fluid"
+                            style="object-fit: cover; height: 100%; border-radius: 4px;" alt="News Image">
+                        <?php elseif (in_array(strtolower($fileExtension), ['mp4', 'webm', 'ogg'])): ?>
+                        <video class="card-img-top img-fluid"
+                            style="object-fit: contain; height: 100%; border-radius: 4px;" controls muted>
+                            <source src="<?= $imageUrl ?>" type="video/<?= $fileExtension ?>">
+                            Your browser does not support the video tag.
+                        </video>
+                        <?php else: ?>
+                        <img src="<?= $imageUrl ?>" class="card-img-top img-fluid"
+                            style="object-fit: cover; height: 100%; border-radius: 4px;" alt="Placeholder Image">
+                        <?php endif; ?>
+
 
                         <!-- Konten Overlay -->
                         <div class="card-img-overlay d-flex flex-column justify-content-end"
@@ -308,8 +375,25 @@
                     <div class="col-md-4 mb-4">
                         <div class="card">
                             <a href="detail.php?id=<?= $news['_id'] ?>" class="text-decoration-none text-black">
-                                <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/300x200' ?>"
-                                    class="card-img-top" height="200rem" style="object-fit: cover;" alt=" News Image">
+                                <?php
+                                        $fileExtension = pathinfo($news['media'], PATHINFO_EXTENSION);
+                                        $imageUrl = isset($news['media']) ? 'uploads/' . $news['media'] : 'https://placehold.co/300x200';
+                                        ?>
+
+                                <?php if (in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
+                                <img src="<?= $imageUrl ?>" class="card-img-top"
+                                    style="object-fit: cover; height: 300px; width: 100%;" alt="News Image">
+
+                                <?php elseif (in_array(strtolower($fileExtension), ['mp4', 'webm', 'ogg'])): ?>
+                                <video class="card-img-top" style="width: 100%; height: 300px; object-fit: contain;"
+                                    controls muted>
+                                    <source src="<?= $imageUrl ?>" type="video/<?= $fileExtension ?>">
+                                    Your browser does not support the video tag.
+                                </video>
+                                <?php else: ?>
+                                <img src="<?= $imageUrl ?>" class="card-img-top"
+                                    style="object-fit: cover; height: 200rem;" alt="Placeholder Image">
+                                <?php endif; ?>
                                 <div class="card-body">
                                     <span class="badge bg-danger mb-2"><?= htmlspecialchars($news['category']) ?></span>
                                     <h5 class="card-title card-text-custom fw-semibold"><?= $news['title'] ?></h5>
@@ -329,7 +413,7 @@
                     <div class="col-md-8 mt-4">
                         <h3 class="fw-semibold mb-4">Latest News</h3>
 
-                        <?php foreach(array_slice($newsList, 0, 5) as $news): ?>
+                        <?php foreach (array_slice($newsList, 0, 5) as $news): ?>
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="d-flex align-items-center mt-2 mb-2">
@@ -351,26 +435,43 @@
                                     <!-- Ikon di kanan -->
                                     <div class="d-flex align-items-center me-3">
                                         <!-- Bookmark -->
-                                        <button class="btn p-0 me-2 border-0">
-                                            <i class=" bi bi-bookmark"></i>
-                                        </button>
+                                        <!-- <button class="" style="margin-right: 0px;"> -->
+                                        <i class=" bi bi-bookmark me-2"></i>
+                                        <!-- </button> -->
                                         <!-- Like/Love -->
                                         <!-- <button class="me-2">
                                     <i class="bi bi-heart"></i>
                                 </button> -->
                                         <!-- Share -->
-                                        <button class="btn p-0 border-0 ">
-                                            <i class="bi bi-share"></i>
-                                        </button>
+                                        <!-- <button class=""> -->
+                                        <i class="bi bi-share"></i>
+                                        <!-- </button> -->
                                     </div>
                                 </div>
 
                             </div>
                             <div class="col-md-4 text-end">
-                                <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/60x60' ?>"
-                                    class="card-img-top img-fluid float-end"
-                                    style=" object-fit: cover; border-radius: 10px; float: right; height: 13rem;"
+                                <?php
+                                        $fileExtension = pathinfo($news['media'], PATHINFO_EXTENSION);
+                                        $imageUrl = isset($news['media']) ? 'uploads/' . $news['media'] : 'https://placehold.co/60x60';
+                                        ?>
+
+                                <?php if (in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
+                                <img src="<?= $imageUrl ?>" class="card-img-top img-fluid float-end"
+                                    style="object-fit: cover; border-radius: 10px; float: right; height: 13rem;"
                                     alt="News Image">
+                                <?php elseif (in_array(strtolower($fileExtension), ['mp4', 'webm', 'ogg'])): ?>
+                                <video class="card-img-top img-fluid float-end"
+                                    style="object-fit: contain; border-radius: 10px; float: right; height: 13rem; width: 100%;"
+                                    controls muted>
+                                    <source src="<?= $imageUrl ?>" type="video/<?= $fileExtension ?>">
+                                    Your browser does not support the video tag.
+                                </video>
+                                <?php else: ?>
+                                <img src="<?= $imageUrl ?>" class="card-img-top img-fluid float-end"
+                                    style="object-fit: cover; border-radius: 10px; float: right; height: 13rem;"
+                                    alt="Placeholder Image">
+                                <?php endif; ?>
                             </div>
                             <hr class="mt-4 mb-4">
                         </div>
@@ -390,9 +491,25 @@
                             <h4 class="mt-3 mb-3">Berita Terlama</h4>
                             <div class="card position-relative" style="height: 18rem;">
                                 <!-- Gambar -->
-                                <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/600x400' ?>"
-                                    class="card-img-top img-fluid"
+                                <?php
+                                    $fileExtension = pathinfo($news['media'], PATHINFO_EXTENSION);
+                                    $imageUrl = isset($news['media']) ? 'uploads/' . $news['media'] : 'https://placehold.co/600x400';
+                                    ?>
+
+                                <?php if (in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
+                                <img src="<?= $imageUrl ?>" class="card-img-top img-fluid"
                                     style="object-fit: cover; height: 100%; border-radius: 4px;" alt="News Image">
+                                <?php elseif (in_array(strtolower($fileExtension), ['mp4', 'webm', 'ogg'])): ?>
+                                <video class="card-img-top img-fluid"
+                                    style="object-fit: cover; height: 100%; border-radius: 4px;" controls muted>
+                                    <source src="<?= $imageUrl ?>" type="video/<?= $fileExtension ?>">
+                                    Your browser does not support the video tag.
+                                </video>
+                                <?php else: ?>
+                                <img src="<?= $imageUrl ?>" class="card-img-top img-fluid"
+                                    style="object-fit: cover; height: 100%; border-radius: 4px;"
+                                    alt="Placeholder Image">
+                                <?php endif; ?>
 
                                 <!-- Konten Overlay -->
                                 <div class="card-img-overlay d-flex flex-column justify-content-end"
@@ -437,14 +554,14 @@
                             <div class="card">
                                 <h4 class="p-2">Top Posts</h4>
                                 <ul class="list-group list-group-flush">
-                                    <?php 
+                                    <?php
                                         $topPosts = $collection->find(
                                             ['created_at' => ['$gte' => new MongoDB\BSON\UTCDateTime(strtotime('-30 days') * 1000)]],
                                             ['sort' => ['views' => -1], 'limit' => 5]
                                         );
                                         $counter = 1; // Inisialisasi angka
-                                        foreach ($topPosts as $post): 
-                                    ?>
+                                        foreach ($topPosts as $post):
+                                        ?>
                                     <li class=" list-group-item d-flex align-items-start">
                                         <span class="me-3 fw-bold"><?= $counter++; ?>.</span> <!-- Angka -->
                                         <div>

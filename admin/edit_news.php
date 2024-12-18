@@ -1,94 +1,112 @@
 <?php
-    session_start();
-    require '../config/db.php';
+session_start();
+require '../config/db.php';
 
-    // Redirect jika user belum login
-    if (!isset($_SESSION['username'])) {
-        header('Location: login.php');
-        exit;
-    }
+// Redirect jika user belum login
+if (!isset($_SESSION['username'])) {
+    header('Location: login.php');
+    exit;
+}
 
-    // Variabel untuk pesan pemberitahuan
-    $message = "";
+// Variabel untuk pesan pemberitahuan
+$message = "";
 
-    // Validasi ID dari URL
-    if (!isset($_GET['id']) || empty($_GET['id'])) {
-        die("ID berita tidak valid.");
-    }
+// Validasi ID dari URL
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    die("ID berita tidak valid.");
+}
 
+try {
     $id = new MongoDB\BSON\ObjectId($_GET['id']);
     $news = $db->news->findOne(['_id' => $id]);
 
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $collection = $db->news;
-        $target_dir = "../images/";
-        $image_path = $news['image'] ?? ''; // Default ke gambar lama jika tidak ada yang baru
-        $old_image_path = $image_path;
+    if (!$news) {
+        die("Berita tidak ditemukan.");
+    }
+} catch (Exception $e) {
+    die("ID berita tidak valid.");
+}
 
-        // Cek apakah file baru diunggah
-        if (!empty($_FILES["image"]["name"])) {
-            $image_name = basename($_FILES["image"]["name"]);
-            $target_file = $target_dir . $image_name;
-            $uploadOk = 1;
-            $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $collection = $db->news;
+    $target_dir = "../uploads/";
+    $media_path = $news['media'] ?? ''; // Default ke media lama jika tidak ada yang baru
+    $old_media_path = $media_path;
 
-            // Validasi tipe file
-            $check = getimagesize($_FILES["image"]["tmp_name"]);
-            if ($check === false) {
-                $message = "File bukan gambar.";
-                $uploadOk = 0;
-            }
+    // Cek apakah file baru diunggah
+    if (!empty($_FILES["media"]["name"])) {
+        $media_name = uniqid() . "_" . basename($_FILES["media"]["name"]);
+        $target_file = $target_dir . $media_name;
+        $uploadOk = 1;
+        $fileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
-            // Cek ukuran file (maksimal 2MB)
-            if ($_FILES["image"]["size"] > 2000000) {
-                $message = "Ukuran file terlalu besar (maksimal 2MB).";
-                $uploadOk = 0;
-            }
+        // Tipe file yang diperbolehkan
+        $allowed_image_types = ['jpg', 'jpeg', 'png', 'gif'];
+        $allowed_video_types = ['mp4', 'avi', 'mov', 'mkv'];
 
-            // Hanya izinkan format file tertentu
-            $allowed_types = ["jpg", "jpeg", "png", "gif"];
-            if (!in_array($imageFileType, $allowed_types)) {
-                $message = "Hanya format JPG, JPEG, PNG, dan GIF yang diizinkan.";
-                $uploadOk = 0;
-            }
-
-            // Proses upload file baru
-            if ($uploadOk) {
-                if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-                    $image_path = $image_name; // Simpan hanya nama file
-                } else {
-                    $message = "Gagal mengunggah file.";
-                }
-            }
+        // Validasi jenis file
+        if (in_array($fileType, $allowed_image_types)) {
+            $is_image = true;
+        } elseif (in_array($fileType, $allowed_video_types)) {
+            $is_image = false;
+        } else {
+            $message = "Hanya file media (JPG, JPEG, PNG, GIF) atau video (MP4, AVI, MOV, MKV) yang diizinkan.";
+            $uploadOk = 0;
         }
 
-        // Update data di database
-        $result = $collection->updateOne(
-            ['_id' => $id],
-            [
-                '$set' => [
-                    'title' => $_POST['title'],
-                    'content' => $_POST['content'],
-                    'summary' => $_POST['summary'],
-                    'author' => $_POST['author'],
-                    'category' => $_POST['category'],
-                    'updated_at' => new MongoDB\BSON\UTCDateTime(),
-                    'image' => $image_path
-                ]
-            ]
-        );
+        // Validasi ukuran file
+        $max_size = $is_image ? 5000000 : 50000000; // 5MB untuk gambar, 50MB untuk video
+        if ($_FILES["media"]["size"] > $max_size) {
+            $message = $is_image
+                ? "Ukuran file media terlalu besar. Maksimum 5MB."
+                : "Ukuran file video terlalu besar. Maksimum 50MB.";
+            $uploadOk = 0;
+        }
 
-        if ($result->getModifiedCount() > 0) {
-            if ($image_path !== $old_image_path && file_exists($target_dir . $old_image_path)) {
-                unlink($target_dir . $old_image_path);
+        // Cek jika file sudah ada
+        if (file_exists($target_file)) {
+            $message = "File sudah ada. Silakan ganti nama file atau unggah file yang berbeda.";
+            $uploadOk = 0;
+        }
+
+        // Proses upload file baru
+        if ($uploadOk) {
+            if (move_uploaded_file($_FILES["media"]["tmp_name"], $target_file)) {
+                $media_path = $media_name; // Simpan hanya nama file
+            } else {
+                $message = "Gagal mengunggah file.";
             }
-            $message = "Berita berhasil diupdate!";
-            header('Location: manage_news.php');
-            exit;
-        } else {
-            $message = "Tidak ada perubahan yang disimpan.";
         }
     }
+
+    // Update data di database
+    $result = $collection->updateOne(
+        ['_id' => $id],
+        [
+            '$set' => [
+                'title' => htmlspecialchars($_POST['title']),
+                'content' => htmlspecialchars($_POST['content']),
+                'summary' => htmlspecialchars($_POST['summary']),
+                'author' => htmlspecialchars($_POST['author']),
+                'category' => htmlspecialchars($_POST['category']),
+                'updated_at' => new MongoDB\BSON\UTCDateTime(),
+                'media' => $media_path
+            ]
+        ]
+    );
+
+    if ($result->getModifiedCount() > 0) {
+        // Hapus file lama jika media diperbarui
+        if ($media_path !== $old_media_path && file_exists($target_dir . $old_media_path)) {
+            unlink($target_dir . $old_media_path);
+        }
+        $message = "Berita berhasil diupdate!";
+        header('Location: manage_news.php');
+        exit;
+    } else {
+        $message = "Tidak ada perubahan yang disimpan.";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -111,11 +129,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
 
     <script>
-    function showMessage(message) {
-        if (message) {
-            alert(message);
+        function showMessage(message) {
+            if (message) {
+                alert(message);
+            }
         }
-    }
     </script>
 </head>
 
@@ -197,7 +215,7 @@
                     </span>
                 </div>
                 <div id="editor" style="border-bottom-left-radius: var(--bs-border-radius); border-bottom-right-radius: var(--bs-border-radius); border: 1px solid #dee2e6; border-top: 0px solid; min-height: 10rem">
-                    <?= $news['content'] ?? ''?>
+                    <?= $news['content'] ?? '' ?>
                 </div>
 
                 <input type="hidden" id="quill-content" name="content">
@@ -226,8 +244,8 @@
                 </select>
             </div>
             <div class="mb-3">
-                <label for="image" class="form-label">Gambar</label>
-                <input type="file" class="form-control" id="image" name="image" accept=".jpg, .jpeg, .png, .gif">
+                <label for="image" class="form-label">Gambar/Video Sampul Berita</label>
+                <input type="file" class="form-control" id="media" name="media" accept="image/*, video/*">
             </div>
             <div class="mb-3">
                 <button type="button" class="btn btn-secondary me-2" onclick="window.history.back();">Batal</button>
@@ -241,20 +259,20 @@
 
     <!-- Initialize Quill editor -->
     <script>
-    const quill = new Quill('#editor', {
-        modules: {
-            syntax: true,
-            toolbar: '#toolbar-container',
-        },
-        placeholder: 'Add your content here...',
-        theme: 'snow',
-    });
+        const quill = new Quill('#editor', {
+            modules: {
+                syntax: true,
+                toolbar: '#toolbar-container',
+            },
+            placeholder: 'Add your content here...',
+            theme: 'snow',
+        });
 
         document.getElementById('quill-content').value = quill.root.innerHTML;
 
-    quill.on('text-change', (delta, oldDelta, source) => {
-        document.getElementById('quill-content').value = quill.root.innerHTML;
-    });
+        quill.on('text-change', (delta, oldDelta, source) => {
+            document.getElementById('quill-content').value = quill.root.innerHTML;
+        });
     </script>
 </body>
 

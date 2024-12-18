@@ -1,51 +1,51 @@
 <?php
-    if (!isset($_GET['id'])) {
-        header('Location: index.php');
+if (!isset($_GET['id'])) {
+    header('Location: index.php');
+    exit;
+}
+
+require 'config/db.php';
+
+// use MongoDB;
+
+// Ambil query pencarian dari input pengguna
+$searchQuery = isset($_GET['search']) ? htmlspecialchars(trim($_GET['search'])) : "";
+
+// Koleksi MongoDB
+$collection = $db->news;
+
+// Filter pencarian jika ada input pengguna
+$filter = [];
+if ($searchQuery) {
+    $filter['$or'] = [
+        ['title' => new MongoDB\BSON\Regex($searchQuery, 'i')],
+        ['content' => new MongoDB\BSON\Regex($searchQuery, 'i')]
+    ];
+}
+
+// Ambil berita berdasarkan filter dan urutan berdasarkan tanggal terbaru
+$cursor = $collection->find($filter, ['sort' => ['created_at' => -1]]);
+$newsList = iterator_to_array($cursor);
+
+// Halaman detail berita jika ada
+$news = null;
+try {
+    $id = new MongoDB\BSON\ObjectId($_GET['id']);
+
+    $updateResult = $collection->updateOne(
+        ['_id' => $id],
+        ['$inc' => ['views' => 1]]
+    );
+
+    $news = $collection->findOne(['_id' => $id]);
+    if (!$news) {
+        echo "<p>Berita tidak ditemukan.</p>";
         exit;
     }
-
-    require 'config/db.php';
-
-    // use MongoDB;
-
-    // Ambil query pencarian dari input pengguna
-    $searchQuery = isset($_GET['search']) ? htmlspecialchars(trim($_GET['search'])) : "";
-
-    // Koleksi MongoDB
-    $collection = $db->news;
-
-    // Filter pencarian jika ada input pengguna
-    $filter = [];
-    if ($searchQuery) {
-        $filter['$or'] = [
-            ['title' => new MongoDB\BSON\Regex($searchQuery, 'i')],
-            ['content' => new MongoDB\BSON\Regex($searchQuery, 'i')]
-        ];
-    }
-
-    // Ambil berita berdasarkan filter dan urutan berdasarkan tanggal terbaru
-    $cursor = $collection->find($filter, ['sort' => ['created_at' => -1]]);
-    $newsList = iterator_to_array($cursor);
-
-    // Halaman detail berita jika ada
-    $news = null;
-    try {
-        $id = new MongoDB\BSON\ObjectId($_GET['id']);
-
-        $updateResult = $collection->updateOne(
-            ['_id' => $id],
-            ['$inc' => ['views' => 1]]
-        );
-
-        $news = $collection->findOne(['_id' => $id]);
-        if (!$news) {
-            echo "<p>Berita tidak ditemukan.</p>";
-            exit;
-        }
-    } catch (Exception $e) {
-        echo "<p>ID tidak valid.</p>";
-        exit;
-    }
+} catch (Exception $e) {
+    echo "<p>ID tidak valid.</p>";
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -170,9 +170,33 @@
 
             <div class="text-white text-center d-flex align-items-center justify-content-center mt-3"
                 style="height: 600px; ">
-                <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/300x200' ?>"
-                    class="card-img-top img-fluid" alt="News Image"
-                    style="max-height: 100%; max-width: 100%; object-fit: cover; padding:0px;">
+                <?php
+                    // Tentukan jenis media berdasarkan ekstensi file
+                    $mediaPath = isset($news['media']) ? 'uploads/' . $news['media'] : 'https://placehold.co/300x200';
+
+                    // Ekstensi untuk memeriksa gambar dan video
+                    $imageExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+                    $videoExtensions = ['mp4', 'webm', 'ogg'];
+
+                    // Mendapatkan ekstensi file
+                    $fileExtension = strtolower(pathinfo($mediaPath, PATHINFO_EXTENSION));
+
+                    // Cek apakah itu gambar
+                    if (in_array($fileExtension, $imageExtensions)) {
+                        echo '<img src="' . $mediaPath . '" class="card-img-top img-fluid" alt="News Image" style="max-height: 100%; max-width: 100%; object-fit: cover; padding:0px;">';
+                    }
+                    // Cek apakah itu video
+                    elseif (in_array($fileExtension, $videoExtensions)) {
+                        echo '<video controls class="card-img-top img-fluid" style="max-height: 100%; max-width: 100%; padding:0px;">
+                <source src="' . $mediaPath . '" type="video/' . $fileExtension . '">
+                Your browser does not support the video tag.
+              </video>';
+                    }
+                    // Tampilkan gambar placeholder jika tidak dikenal
+                    else {
+                        echo '<img src="https://placehold.co/300x200" class="card-img-top img-fluid" alt="Placeholder Image" style="max-height: 100%; max-width: 100%; object-fit: cover; padding:0px;">';
+                    }
+                    ?>
             </div>
 
             <h2 class="mt-4 fw-bold"><?= htmlspecialchars($news['title']) ?></h2>
@@ -183,7 +207,7 @@
                 <span class="text-danger fw-semibold"><?= htmlspecialchars($news['category']) ?></span>
                 <div class="d-flex ms-auto">
                     <!-- Tombol bookmark -->
-                    <button class="btn border-0 p-0 bookmark-btn" id="bookmarkBtn">
+                    <button class="btn bookmark-btn" id="bookmarkBtn">
                         <i class="bi bi-bookmark" id="bookmarkIcon"></i>
                     </button>
                 </div>
@@ -202,8 +226,23 @@
                 <?php foreach ($newsList as $news): ?>
                 <div class="col-md-3 mb-4">
                     <div class="card">
-                        <img src="<?= isset($news['image']) ? 'images/' . $news['image'] : 'https://placehold.co/300x200' ?>"
-                            class="card-img-top" height="240rem" style="object-fit: cover;" alt="News Image">
+                        <?php
+                                $fileExtension = pathinfo($news['media'], PATHINFO_EXTENSION);
+                                $imageUrl = isset($news['media']) ? 'uploads/' . $news['media'] : 'https://placehold.co/300x200';
+                                ?>
+
+                        <?php if (in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'webp'])): ?>
+                        <img src="<?= $imageUrl ?>" class="card-img-top" height="240rem" style="object-fit: cover;"
+                            alt="News Image">
+                        <?php elseif (in_array(strtolower($fileExtension), ['mp4', 'webm', 'ogg'])): ?>
+                        <video class="card-img-top" height="240rem" style="object-fit: cover;" controls muted>
+                            <source src="<?= $imageUrl ?>" type="video/<?= $fileExtension ?>">
+                            Your browser does not support the video tag.
+                        </video>
+                        <?php else: ?>
+                        <img src="<?= $imageUrl ?>" class="card-img-top" height="240rem" style="object-fit: cover;"
+                            alt="Placeholder Image">
+                        <?php endif; ?>
                         <div class="card-body">
                             <h5 class="card-title card-text-custom fw-semibold">
                                 <?= htmlspecialchars($news['title']) ?>

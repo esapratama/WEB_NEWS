@@ -1,74 +1,75 @@
 <?php
-    session_start();
-    require '../config/db.php';
+session_start();
+require '../config/db.php';
 
-    // Redirect jika user belum login
-    if (!isset($_SESSION['username'])) {
-        header('Location: login.php');
-        exit;
+// Redirect jika user belum login
+if (!isset($_SESSION['username'])) {
+    header('Location: login.php');
+    exit;
+}
+
+// Variabel untuk pesan pemberitahuan
+$message = "";
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $collection = $db->news;
+    $target_dir = "../uploads/"; // Direktori untuk file gambar atau video
+    $target_file = $target_dir . basename($_FILES["media"]["name"]);
+    $uploadOk = 1;
+    $fileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+    // Daftar ekstensi yang diizinkan
+    $allowed_image_types = ['jpg', 'jpeg', 'png', 'gif'];
+    $allowed_video_types = ['mp4', 'avi', 'mov', 'mkv'];
+
+    // Validasi apakah file termasuk gambar atau video
+    if (in_array($fileType, $allowed_image_types)) {
+        $is_image = true;
+    } elseif (in_array($fileType, $allowed_video_types)) {
+        $is_image = false;
+    } else {
+        $message = "Hanya file gambar (JPG, JPEG, PNG, GIF) atau video (MP4, AVI, MOV, MKV) yang diizinkan.";
+        $uploadOk = 0;
     }
 
-    // Variabel untuk pesan pemberitahuan
-    $message = "";
+    // Validasi ukuran file
+    $max_size = $is_image ? 5000000 : 50000000; // 5MB untuk gambar, 50MB untuk video
+    if ($_FILES["media"]["size"] > $max_size) {
+        $message = $is_image
+            ? "Ukuran file gambar terlalu besar. Maksimum 5MB."
+            : "Ukuran file video terlalu besar. Maksimum 50MB.";
+        $uploadOk = 0;
+    }
 
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $collection = $db->news;
-        $target_dir = "../images/";
-        $target_file = $target_dir . basename($_FILES["image"]["name"]);
-        $uploadOk = 1;
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+    // Cek jika file sudah ada
+    if (file_exists($target_file)) {
+        $message = "File sudah ada. Silakan ganti nama file atau unggah file yang berbeda.";
+        $uploadOk = 0;
+    }
 
-        // Validasi apakah file adalah gambar
-        $check = getimagesize($_FILES["image"]["tmp_name"]);
-        if ($check !== false) {
-            $uploadOk = 1;
+    // Jika validasi lolos, proses upload
+    if ($uploadOk) {
+        if (move_uploaded_file($_FILES["media"]["tmp_name"], $target_file)) {
+            $result = $collection->insertOne([
+                'title' => $_POST['title'],
+                'content' => $_POST['content'],
+                'summary' => $_POST['summary'],
+                'author' => $_POST['author'],
+                'category' => $_POST['category'],
+                'created_at' => new MongoDB\BSON\UTCDateTime(),
+                'updated_at' => new MongoDB\BSON\UTCDateTime(),
+                'media' => basename($_FILES["media"]["name"]), // Simpan hanya nama file
+            ]);
+
+            // Pesan pemberitahuan
+            $message = "Berita berhasil ditambahkan!";
+            header('Location: manage_news.php');
+            exit;
         } else {
-            $message = "File is not an image.";
-            $uploadOk = 0;
-        }
-
-        // Cek jika file sudah ada
-        if (file_exists($target_file)) {
-            $message = "Sorry, file already exists.";
-            $uploadOk = 0;
-        }
-
-        // Cek ukuran file, max 500kb
-        if ($_FILES["image"]["size"] > 500_000) {
-            $message = "Sorry, your file is too large.";
-            $uploadOk = 0;
-        }
-
-        // Validasi format file
-        $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
-        if (!in_array($imageFileType, $allowed_types)) {
-            $message = "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-            $uploadOk = 0;
-        }
-
-        // Jika tidak ada error, proses upload
-        if ($uploadOk != 0) {
-            if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
-                $result = $collection->insertOne([
-                    'title' => $_POST['title'],
-                    'content' => $_POST['content'],
-                    'summary' => $_POST['summary'],
-                    'author' => $_POST['author'],
-                    'category' => $_POST['category'],
-                    'created_at' => new MongoDB\BSON\UTCDateTime(),
-                    'updated_at' => new MongoDB\BSON\UTCDateTime(),
-                    'image' => basename($_FILES["image"]["name"]) // Simpan hanya nama file
-                ]);
-
-                // Pesan pemberitahuan
-                $message = "Berita berhasil ditambahkan!";
-                header('Location: manage_news.php');
-                exit;
-            } else {
-                $message = "Sorry, there was an error uploading your file.";
-            }
+            $message = "Terjadi kesalahan saat mengunggah file.";
         }
     }
+}
 ?>
 
 <!DOCTYPE html>
@@ -91,12 +92,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
 
     <script>
-    // Fungsi untuk menampilkan alert jika ada pesan
-    function showMessage(message) {
-        if (message) {
-            alert(message);
+        // Fungsi untuk menampilkan alert jika ada pesan
+        function showMessage(message) {
+            if (message) {
+                alert(message);
+            }
         }
-    }
     </script>
 </head>
 
@@ -204,8 +205,8 @@
                 </select>
             </div>
             <div class="mb-3">
-                <label for="image" class="form-label">Gambar</label>
-                <input type="file" class="form-control" id="image" name="image" accept=".jpg, .jpeg, .png, .gif">
+                <label for="image" class="form-label">Gambar/Video Sampul Berita</label>
+                <input type="file" class="form-control" id="media" name="media" accept="image/*, video/*">
             </div>
             <br>
             <div class="mb-3">
@@ -220,18 +221,18 @@
 
     <!-- Initialize Quill editor -->
     <script>
-    const quill = new Quill('#editor', {
-        modules: {
-            syntax: true,
-            toolbar: '#toolbar-container',
-        },
-        placeholder: 'Add your content here...',
-        theme: 'snow',
-    });
+        const quill = new Quill('#editor', {
+            modules: {
+                syntax: true,
+                toolbar: '#toolbar-container',
+            },
+            placeholder: 'Add your content here...',
+            theme: 'snow',
+        });
 
-    quill.on('text-change', (delta, oldDelta, source) => {
-        document.getElementById('quill-content').value = quill.root.innerHTML;
-    });
+        quill.on('text-change', (delta, oldDelta, source) => {
+            document.getElementById('quill-content').value = quill.root.innerHTML;
+        });
     </script>
 </body>
 
