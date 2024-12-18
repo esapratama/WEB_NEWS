@@ -351,17 +351,17 @@
                                     <!-- Ikon di kanan -->
                                     <div class="d-flex align-items-center me-3">
                                         <!-- Bookmark -->
-                                        <!-- <button class="" style="margin-right: 0px;"> -->
-                                        <i class=" bi bi-bookmark me-2"></i>
-                                        <!-- </button> -->
+                                        <button class="btn p-0 me-2 border-0">
+                                            <i class=" bi bi-bookmark"></i>
+                                        </button>
                                         <!-- Like/Love -->
                                         <!-- <button class="me-2">
                                     <i class="bi bi-heart"></i>
                                 </button> -->
                                         <!-- Share -->
-                                        <!-- <button class=""> -->
-                                        <i class="bi bi-share"></i>
-                                        <!-- </button> -->
+                                        <button class="btn p-0 border-0 ">
+                                            <i class="bi bi-share"></i>
+                                        </button>
                                     </div>
                                 </div>
 

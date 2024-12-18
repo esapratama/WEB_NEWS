@@ -134,8 +134,7 @@
     <nav class="navbar navbar-expand-md navbar-light bg-light shadow-sm sticky-top">
         <div class="container custom-container">
             <a class="navbar-brand fw-bold text-danger" href="index.php" style="font-size: 36px;">PoliNews</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarNavDropdown">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNavDropdown">
@@ -184,7 +183,7 @@
                 <span class="text-danger fw-semibold"><?= htmlspecialchars($news['category']) ?></span>
                 <div class="d-flex ms-auto">
                     <!-- Tombol bookmark -->
-                    <button class="btn bookmark-btn" id="bookmarkBtn">
+                    <button class="btn border-0 p-0 bookmark-btn" id="bookmarkBtn">
                         <i class="bi bi-bookmark" id="bookmarkIcon"></i>
                     </button>
                 </div>
